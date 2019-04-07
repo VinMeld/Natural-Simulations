@@ -1,0 +1,216 @@
+var food = function(){
+    this.x = 0;
+    this.y = 0;
+};
+food.prototype.show = function(x,y){
+    this.x = x;
+    this.y =  y;
+    fill(119, 184, 33);
+    ellipse(this.x,this.y,10,10);
+};
+food.prototype.eaten = function(){
+    this.x = random(width);
+    this.y = random(height);
+    this.show();
+};
+// Adapted from Dan Shiffman, natureofcode.com
+
+var G = 1;
+
+var Mover = function(m, x, y) {
+    this.mass = m;
+    this.position = new PVector(x, y);
+    this.velocity = new PVector(0, 0);
+    this.acceleration = new PVector(0, 0);
+};
+  
+Mover.prototype.applyForce = function(force) {
+    var f = PVector.div(force, this.mass);
+    this.acceleration.add(f);
+};
+  
+Mover.prototype.update = function() {
+    this.velocity.add(this.acceleration);
+    this.position.add(this.velocity);
+    this.acceleration.mult(0);
+};
+
+Mover.prototype.display = function() {
+    stroke(0);
+    strokeWeight(2);
+    fill(255, 255, 255, 127);
+    ellipse(this.position.x, this.position.y, this.mass*16, this.mass*16);
+};
+
+Mover.prototype.calculateAttraction = function(m, i) {
+    // Calculate direction of force
+    var force = PVector.sub(this.position, m.position);
+    // Distance between objects
+    var distance = force.mag();
+    // Limiting the distance to eliminate "extreme" results for very close or very far objects
+    distance = constrain(distance, 5.0, 25.0);
+    // Normalize vector (distance doesn't matter here, we just want this vector for direction                            
+    force.normalize();
+    // Calculate gravitional force magnitude
+    var strength = (G * this.mass * m.mass) / (distance * distance);
+    // Get force vector --> magnitude * direction
+    force.mult(strength);
+    return force;
+};
+
+
+//Constructor.
+var Mover = function() {
+  this.position = new PVector(random(width), random(height));
+  this.velocity = new PVector(0, 0);
+  this.acceleration = new PVector(0, 0);
+};
+//updating the direction.
+Mover.prototype.update = function(x,y) {
+    var mouse = new PVector(x,y);
+    var dir = PVector.sub(mouse, this.position);
+    dir.normalize();
+    dir.mult(0.2);
+    this.acceleration = dir;
+    this.velocity.add(this.acceleration);
+    this.velocity.limit(5);
+    this.position.add(this.velocity);
+};
+//SHowing the fish.
+Mover.prototype.display = function() {
+  stroke(0);
+  strokeWeight(2);
+  fill(127);
+  ellipse(this.position.x, this.position.y, 30, 30);
+  fill(255, 0, 0);
+  ellipse(this.position.x +4, this.position.y, 5, 5);
+  line(this.position.x, this.position.y+4, this.position.x +10, this.position.y +5);
+  triangle(this.position.x -20,this.position.y + 20,this.position.x -7,this.position.y + 3,this.position.x - 20,this.position.y + 2);
+};
+//Checking the edges.
+    
+Mover.prototype.checkEdges = function() {
+
+  if (this.position.x > width) {
+    this.position.x = 0;
+  } 
+  else if (this.position.x < 0) {
+    this.position.x = width;
+  }
+
+  if (this.position.y > height) {
+    this.position.y = 0;
+  } 
+  else if (this.position.y < 0) {
+    this.position.y = height;
+  }
+};
+var Mover1 = function(m, x, y) {
+    this.mass = m;
+    this.position = new PVector(x, y);
+    this.velocity = new PVector(0, 0);
+    this.acceleration = new PVector(0, 0);
+};
+  
+Mover1.prototype.applyForce = function(force) {
+    var f = PVector.div(force, this.mass);
+    this.acceleration.add(f);
+};
+  
+Mover1.prototype.update = function() {
+    this.velocity.add(this.acceleration);
+    this.position.add(this.velocity);
+    this.acceleration.mult(0);
+};
+
+Mover1.prototype.display = function() {
+    stroke(0);
+    strokeWeight(2);
+    fill(255, 255, 255, 127);
+    ellipse(this.position.x, this.position.y, this.mass*16, this.mass*16);
+};
+
+Mover1.prototype.calculateAttraction = function(m, i) {
+    // Calculate direction of force
+    var force = PVector.sub(this.position, m.position);
+    // Distance between objects
+    var distance = force.mag();
+    // Limiting the distance to eliminate "extreme" results for very close or very far objects
+    distance = constrain(distance, 5.0, 25.0);
+    // Normalize vector (distance doesn't matter here, we just want this vector for direction                            
+    force.normalize();
+    // Calculate gravitional force magnitude
+    var strength = (G * this.mass * m.mass) / (distance * distance);
+    // Get force vector --> magnitude * direction
+    force.mult(strength);
+    return force;
+};
+Mover1.prototype.calculateWallForce = function() {
+    if (this.position.x > width) {// Making it so that it won't go off the screen.
+        this.position.x = 10;
+    } else if (this.position.x < 0) {
+        this.position.x= 37;
+    }
+    if (this.position.y > height) {
+    this.position.y = 10;
+    } else if (this.position.y < 0) {
+    this.position.y = 44;
+    }
+};
+var movers = [];
+for (var i = 0; i < 2; i++) {
+    movers[i] = new Mover1(random(0.1, 5), random(width), random(height));
+}
+
+var food1 = new food();
+var quanitiy = 20;
+var fish1 = [];
+for(var i = 0; i < quanitiy; i++){
+        fish1[i] = new Mover();
+    }
+draw = function() {
+    background(77, 0, 255);
+    
+    for (var i = 0; i < movers.length; i++) {
+        for (var j = 0; j < movers.length; j++) {
+            if (i !== j) {
+                var force = movers[j].calculateAttraction(movers[i]);
+                movers[i].applyForce(force);
+            }
+        }
+
+        movers[i].update();
+        movers[i].display();
+  if (keyIsPressed && keyCode === UP) {                       movers[i].acceleration.x+=0.1;
+  }
+  if (keyIsPressed && keyCode === DOWN) {                         movers[i].acceleration.x-=0.1;
+              }else{
+    }
+    }
+           
+    for (var j = 0; j < quanitiy; j++){
+            fish1[j].update(movers[0].position.x,movers[0].position.y);
+          
+        fish1[j].checkEdges(); 
+        fish1[j].display();
+    }
+
+};
+/*
+var mousePressed = function(){
+    for(var i = 0; i < movers.length; i++){
+        if(movers[0].x < width && movers[0].x > 0){
+        }else{
+            movers[i].acceleration.x+=1;
+        }
+    }
+    
+};*/
+
+/*    x = random(width);
+    y =  random(height);
+    food1.show(x,y);
+    for (var j = 0; j < quanitiy; j++){
+        fish1[j].update(x,y);
+    }*/
+

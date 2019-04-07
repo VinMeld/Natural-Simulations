@@ -1,0 +1,89 @@
+//Added food funciton that replaced the mouseX and mouseY.
+//Based off of the interactive vector motion part.
+var food = function(){
+};
+food.prototype.show = function(x,y){
+    fill(119, 184, 33);
+    ellipse(x,y,10,10);
+};
+
+var Mover = function() {
+  this.position = new PVector(random(width), random(height));
+  this.velocity = new PVector(0, 0);
+  this.acceleration = new PVector(0, 0);
+};
+
+Mover.prototype.update = function(x,y) {
+    var mouse = new PVector(x,y);
+    var dir = PVector.sub(mouse, this.position);
+    dir.normalize();
+    dir.mult(0.2);
+    this.acceleration = dir;
+    this.velocity.add(this.acceleration);
+    this.velocity.limit(5);
+    this.position.add(this.velocity);
+};
+
+Mover.prototype.display = function() {
+  stroke(0);
+  strokeWeight(2);
+  fill(127);
+  ellipse(this.position.x, this.position.y, 30, 30);
+  fill(255, 0, 0);
+  ellipse(this.position.x +4, this.position.y, 5, 5);
+  line(this.position.x, this.position.y+4, this.position.x +10, this.position.y +5);
+  triangle(this.position.x -20,this.position.y + 20,this.position.x -7,this.position.y + 3,this.position.x - 20,this.position.y + 2);
+};
+
+    
+Mover.prototype.checkEdges = function() {
+
+  if (this.position.x > width) {
+    this.position.x = 0;
+  } 
+  else if (this.position.x < 0) {
+    this.position.x = width;
+  }
+
+  if (this.position.y > height) {
+    this.position.y = 0;
+  } 
+  else if (this.position.y < 0) {
+    this.position.y = height;
+  }
+};
+
+var movers = [];
+var x,y;
+
+for (var i = 0; i < 20; i++) {
+    movers[i] = new Mover(); 
+}
+
+var food1 = new food();
+var quanitiy = 20;
+var fish1 = [];
+for(var i = 0; i < quanitiy; i++){
+        fish1[i] = new Mover();
+    }
+draw = function() {
+    background(77, 0, 255);
+    for (var j = 0; j < quanitiy; j++){
+        fish1[j].update(x,y);
+        fish1[j].checkEdges(); 
+        fish1[j].display();
+    }
+    food1.show(x,y);
+    };
+var mousePressed = function(){
+    x = random(width);
+    y =  random(height);
+    food1.show(x,y);
+    for (var j = 0; j < quanitiy; j++){
+        fish1[j].update(x,y);
+    }
+    
+};
+
+
+
